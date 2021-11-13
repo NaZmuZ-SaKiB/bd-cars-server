@@ -47,6 +47,22 @@ const runServer = async () => {
             res.json(car);
         })
 
+        // Post Car
+        app.post('/cars', async (req, res) => {
+            const car = req.body;
+
+            const response = await carCollection.insertOne(car);
+            res.json(response);
+        })
+
+        // Delete Car
+        app.delete('/cars/:id', async (req, res) => {
+            const id = req.params?.id;
+
+            const response = await carCollection.deleteOne({ _id: ObjectId(id) });
+            res.json(response);
+        })
+
         // Get Reviews
         app.get('/reviews', async (req, res) => {
             const cursor = await reviewCollection.find({});
@@ -131,16 +147,17 @@ const runServer = async () => {
             res.json(response);
         })
 
-        // Get Order
+        // Get Orders
         app.get('/orders', async (req, res) => {
             const email = req.query?.email;
+            const options = { sort: { _id: -1 } };
             let cursor;
 
             if (email) {
-                cursor = await orderCollection.find({ email });
+                cursor = await orderCollection.find({ email }, options);
             }
             else {
-                cursor = await orderCollection.find({ status: 'Pending' });
+                cursor = await orderCollection.find({ status: 'Pending' }, options);
             }
 
             const orders = await cursor.toArray();
